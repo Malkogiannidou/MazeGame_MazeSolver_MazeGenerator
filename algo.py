@@ -9,10 +9,10 @@ class MazeGenerator(object):
         self.kantenlaenge: int = kantenlaenge
         self.startKy: int  = random.randint(0, y_Achse - 1)
         self.startKx: int  = random.randint(0, x_Achse - 1)
-        self.maze: Maze = Maze(self.y_Achse, self.x_Achse, kantenlaenge)
+        self.maze: model.Maze = model.Maze(self.y_Achse, self.x_Achse, kantenlaenge)
         self.labyrinth: List[List[Koordinate]] = self.maze.labyrinth
         self.spanning3: dict = {}
-        self.stack: Stack = Stack()
+        self.stack: model.Stack = model.Stack()
         self.createWalls()
         self.createMaze(self.labyrinth[self.startKy][self.startKx])
 
@@ -31,7 +31,7 @@ class MazeGenerator(object):
                 if y < self.y_Achse:  # Bildung der vertikalen Kantendimension
                     self.labyrinth[y][x].kanten['v'] = Rect(vh_x, vh_y, HOEHE,self.kantenlaenge)
 
-    def createMaze(self, aktuelZel: Koordinate) -> None:
+    def createMaze(self, aktuelZel: model.Koordinate) -> None:
         """ Generiert das Labyrinth nach dem iterativen Dept-First-Backtracking-Verfahren.
 
         Zur Hiflfe wurde folgendes PSeudoCode verwendet, die als Kommentar im Code angegeben sind: \n
@@ -79,7 +79,7 @@ class MazeGenerator(object):
                     nxtZel.isVisited = True  # 2.2.4
                     self.stack.push(nxtZel)  # 2.2.4
 
-    def deleteWall(self, k: Koordinate, wandTyp: str) -> None:
+    def deleteWall(self, k: model.Koordinate, wandTyp: str) -> None:
        """ Löscht die entsprechende KantenwandTyp innrhalb der übergebenen Koordinate im Labyrinth.
 
         :param k: Die Koordinate dessen Kantenwand gelöscht werden soll.
@@ -100,7 +100,7 @@ class MazeGenerator(object):
 
 class PathFinder(object):
     """Der Pathfinder berechnet und markiert den Lösungpfad von der akt. Position des Spielers bis zum Ziel."""
-    def __init__(self, mazerator:MazeGenerator, player:Player, isDoPathFinder=True):
+    def __init__(self, mazerator:algo.MazeGenerator, player:model.Player, isDoPathFinder=True):
         """
         Initialisiert alle Attribute der Klasse und ruft die Funktionen findPath() sowie solutionPath2Labyrinth() auf
 
@@ -119,11 +119,11 @@ class PathFinder(object):
         :param isDoPathFinder:
         :type isDoPathFinder:  bool
         """
-        self.stack: Stack = Stack()  # der Lösungspfad
+        self.stack: model.Stack = model.Stack()  # der Lösungspfad
         if isDoPathFinder:
             self.validPath: dict = copy.deepcopy(mazerator.spanning3)
             self.labyrinth: List[List[Koordinate]] = mazerator.labyrinth
-            self.player: Player = player
+            self.player: model.Player = player
             self.findPath()
             self.solutionPath2Labyrinth()
 
@@ -162,7 +162,7 @@ class PathFinder(object):
         """
         for cell in self.stack.liste:
             cell.solutionMarker = self.calculateRect(cell)
-            cell.solutionMarkerColor = SOLUTIONPATHCOLOR
+            cell.solutionMarkerColor = konstanen.SOLUTIONPATHCOLOR
 
     def resetMarker(self) -> None:
         """ Setzt den solutionMarker der Koordinate-Instanz im Lösungspfad self.stack.liste zurück.
@@ -179,7 +179,7 @@ class PathFinder(object):
             cell.solutionMarker = None
 
     @staticmethod
-    def calculateRect(k: Koordinate):
+    def calculateRect(k: model.Koordinate):
         """
         Berechnet ein pygame.Rect Feld für die Ausgabe des Lösungspfads und spanning3
 
