@@ -1,4 +1,6 @@
 import copy
+import model
+import konstanten
 from typing import *
 from model import *
 
@@ -24,8 +26,8 @@ class MazeGenerator(object):
         """
         for y in range(self.y_Achse + 1):
             for x in range(self.x_Achse + 1):
-                vh_x = FENSTER_RAND_ABSTAND + (x * self.kantenlaenge)
-                vh_y = FENSTER_RAND_ABSTAND + (y * self.kantenlaenge)
+                vh_x = konstanten.FENSTER_RAND_ABSTAND + (x * self.kantenlaenge)
+                vh_y = konstanten.FENSTER_RAND_ABSTAND + (y * self.kantenlaenge)
                 if x < self.x_Achse:  # Bildung der horizontalen Kantendimension
                     self.labyrinth[y][x].kanten['h'] = Rect(vh_x, vh_y, self.kantenlaenge, HOEHE)
                 if y < self.y_Achse:  # Bildung der vertikalen Kantendimension
@@ -100,7 +102,7 @@ class MazeGenerator(object):
 
 class PathFinder(object):
     """Der Pathfinder berechnet und markiert den Lösungpfad von der akt. Position des Spielers bis zum Ziel."""
-    def __init__(self, mazerator:algo.MazeGenerator, player:model.Player, isDoPathFinder=True):
+    def __init__(self, mazerator:MazeGenerator, player:model.Player, isDoPathFinder=True):
         """
         Initialisiert alle Attribute der Klasse und ruft die Funktionen findPath() sowie solutionPath2Labyrinth() auf
 
@@ -162,7 +164,7 @@ class PathFinder(object):
         """
         for cell in self.stack.liste:
             cell.solutionMarker = self.calculateRect(cell)
-            cell.solutionMarkerColor = konstanen.SOLUTIONPATHCOLOR
+            cell.solutionMarkerColor = konstanten.SOLUTIONPATHCOLOR
 
     def resetMarker(self) -> None:
         """ Setzt den solutionMarker der Koordinate-Instanz im Lösungspfad self.stack.liste zurück.
@@ -191,8 +193,8 @@ class PathFinder(object):
         der Lösungspfad nur durch ein Feld mit einem Pixel angezeigt wird.
 
         """
-        x = FENSTER_RAND_ABSTAND + k.x * k.laenge + (k.laenge / 4)
-        y = FENSTER_RAND_ABSTAND + k.y * k.laenge + (k.laenge / 4)
+        x = konstanten.FENSTER_RAND_ABSTAND + k.x * k.laenge + (k.laenge / 4)
+        y = konstanten.FENSTER_RAND_ABSTAND + k.y * k.laenge + (k.laenge / 4)
         width = k.laenge - (k.laenge / 2)
         height = k.laenge - (k.laenge / 2)
         return Rect(x, y, width, height)
