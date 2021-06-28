@@ -2,6 +2,7 @@
 import pygame
 import random
 import typing
+import konstanten
 from konstanten import *
 
 class Koordinate(object):
@@ -58,8 +59,8 @@ class Koordinate(object):
         :return:
         :rtype:
         """
-        x = FENSTER_RAND_ABSTAND + self.x * self.laenge
-        y = FENSTER_RAND_ABSTAND + self.y * self.laenge 
+        x = konstanten.FENSTER_RAND_ABSTAND + self.x * self.laenge
+        y = konstanten.FENSTER_RAND_ABSTAND + self.y * self.laenge 
         width = self.laenge
         height = self.laenge
         return Rect(x, y, width, height)
@@ -126,7 +127,10 @@ class Maze(object):
     def __repr__(self) -> str:
         """ Bildet den String für die Konsolenausgabe des Labyrinths in UniCode.
 
-        Jede Zeile muss zweimal hintereinander berechnet werden, um in einer Zeile sofern vorhanden, nur
+        Jede Zeile muss zweimal hintereinander berechnet werden.
+        In der einen Zeile werden nur die horizontalen Kanten dem ausgabe-String angefügt, sofern dies Kante
+        überhaupt exisitert. Darüberhinaus wird für jedes Spalte (x) dieser zeile das Kanten-Startzeichen durch 
+        den Aufruf der Methode
         die horizontale Kante mit der berechneten kantenstartZeichen dem ausabe-String hinzugefügt.
         Jede Spalte (x) hat die Länge von 5 UniCode Zeichen.  In der andern Zeile werden sofern es
         eine Kante gibt die vertikale Kante mit einem Unicode Zeichen dem ausabe-String hinzugefügt.
@@ -168,21 +172,21 @@ class Maze(object):
     def _getZeichenCode(self, ky, kx) -> str:
         """ Bildet 4-Stellige Kantenstartzeichen-Binärkodierung und gibt diese zurück.
 
-                              ┌─────────┬─────────────┬─────────┐
-        ┌───────────────┬─────┤Anzahl: 3│  Anzahl: 2  │Anzahl: 1│
-        │ Prüfungs-     │     │Existiert│eine Kante um│ K herum?│
-        │ reihenfolge   │ ╋   │ ┫ ┻ ┣ ┳ │ ┛ ┗ ┏ ┓ ┃ ━ │ ╹ ╺ ╻ ╸ │
-        ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┤
-        │ nachRechts: ━ ┼ 1 0 │ 0 1 1 1 │ 0 1 1 0 0 1 │ 0 1 0 0 │
-        │ nachUnten : ┃ ┼ 1 0 │ 1 0 1 1 │ 0 0 1 1 1 0 │ 0 0 1 0 │
-        │ vonLinks *: ━ ┼ 1 0 │ 1 1 0 1 │ 1 0 0 1 0 1 │ 0 0 0 1 │
-        │ vonOben * : ┃ ┼ 1 0 │ 1 1 1 0 │ 1 1 0 0 1 0 │ 1 0 0 0 │
+                                                    ┌─────────┬─────────────┬─────────┐
+        ┌───────────────┬─────┤Anzahl: 3    │  Anzahl: 2           │    Anzahl: 1│
+        │ Prüfungs-               │       │Existiert       │eine Kante um     │ K herum?   │
+        │ reihenfolge             │ ╋   │ ┫┻ ┣ ┳ │ ┛ ┗ ┏ ┓ ┃ ━ │ ╹ ╺ ╻ ╸ │
+        ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┼┄┼ ┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┼┄┤
+        │ nachRechts:        ━ ┼ 1 0 │ 0   1  1   1 │ 0  1   1   0   0   1 │ 0 1 0 0 │
+        │ nachUnten :        ┃ ┼ 1 0 │ 1  0  1    1 │ 0  0   1 1 1 0 │ 0 0 1 0 │
+        │ vonLinks *:         ━ ┼ 1 0 │ 1  1  0    1 │ 1  0   0 1 0 1 │ 0 0 0 1 │
+        │ vonOben * :        ┃ ┼ 1 0 │ 1  1  1    0 │ 1  1   0 0 1 0 │ 1 0 0 0 │
         └───────────────┴━┼─┼─┴─────────┴─────────────┴─────────┘
-        * die Prüfung     │ ┗ Dieser Fall sollte niemals vorkommen
-        dieser Kanten     │   aber kommt vor und zwar NUR an den
-                          │   RANDERN rechts und unten!
-        erfolgt nicht     ┗━━  Es gibt doch Fälle, worin eine
-        in der gleichen      dieses vorkommt.
+        * die Prüfung            │    ┗ Dieser Fall sollte niemals vorkommen
+        dieser Kanten           │   aber kommt vor und zwar NUR an den
+                                       │   RANDERN rechts und unten!
+        erfolgt nicht             ┗━━  Es gibt doch Fälle, worin eine
+        in der gleichen                    dieses vorkommt.
         K-Instanz wie nachRechts o. nachUnten,  sondern in einer anderen Koordinate.
 
         KoordinatenInstanz = K-Instanz
@@ -193,7 +197,7 @@ class Maze(object):
         Eine +"1", wenn obere vom akt. K-Instanz eine vertikale Kante (Schlüssel "v") hat, sonst +"0"
 
         Anschließend erfolgt eine Korrektur für KantenStartZeichen des rechten und unteren
-        Rands, die den ZeichenCode komplett ersetzt durch das korregierte.
+        Rands, die den ZeichenCode komplett durch das korregierte ersetzt.
         Siehe dazu die Kommentare im Quellcode, was wie wann und warum ersetzt wird.
 
         :param ky:
