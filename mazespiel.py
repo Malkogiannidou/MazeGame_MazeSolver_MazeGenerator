@@ -10,39 +10,42 @@ import sys
 import time
 from typing import *
 
+import algo
 from algo import MazeGenerator, PathFinder
+import konstanten
 from konstanten import *
+import model
 from model import Player, Koordinate
 
 class MazeSpiel:
     """Startet das Maze-Spiel"""
-    def __init__(self, y_Achse: int, x_Achse: int, maze_generator: MazeGenerator,
-                 player: Player, screentype: int):
+    def __init__(self, y_Achse: int, x_Achse: int, maze_generator: algo.MazeGenerator, player: model.Player, screentype: int):
         # Pygame init, Anzeigemodus m. ggf. Größenberechnung, Bildschirmfläche, FPS
         pygame.init()
         self.flags = screentype                                 # type: int
-        self.screenSize = SCREENSIZE                            # type: Tuple[int, int]
+        self.screenSize = konstanten.SCREENSIZE                            # type: Tuple[int, int]
         if self.flags == RESIZABLE:
-            self.screenSize =(2 * FENSTER_RAND_ABSTAND + x_Achse * LAENGE + HOEHE),\
-                             (2 * FENSTER_RAND_ABSTAND + y_Achse * LAENGE + HOEHE)
+            self.screenSize =(2 * konstanten.FENSTER_RAND_ABSTAND + x_Achse * konstanten.LAENGE + konstanten.HOEHE),\
+                             (2 * konstanten.FENSTER_RAND_ABSTAND + y_Achse * konstanten.LAENGE + konstanten.HOEHE)
         self.screen = pygame.display.set_mode(self.screenSize, self.flags,32)
         pygame.display.set_caption('MazeGame')
         self.framesPerSecond = x_Achse if x_Achse > y_Achse else y_Achse     # type: int
+        
         # Achsenwerte
         self.xAchse, self.yAchse = x_Achse, y_Achse             # type: int, int
 
         # Labyrinth, Wandfarbe, Spannbaum (spanning3, sp3)
-        self.mazerator = maze_generator                         # type: MazeGenerator
+        self.mazerator = maze_generator                         # type: algo.MazeGenerator
         self.labyrinth = maze_generator.labyrinth               # type: List[List[Koordinate]]
-        self.kantenfarbe = (WALLCOLOR_1, WALLCOLOR_1)
+        self.kantenfarbe = (konstanten.WALLCOLOR_1, konstanten.WALLCOLOR_1)
         self.spanning3_1stKey = maze_generator.startKy, maze_generator.startKx  # type: Tuple[int, int]
         self.sp3_ykey, self.sp3_xkey, self.sp3copy = 0,0,None   # type: int,int, None
 
         # Player, Index-Modifikatoren für Spielerbewegungsrichtung, pathFinder init
-        self.player     = player                                # type: Player
+        self.player: model.Player    = player                                
         self.startKy, self.startKx = self.player.currentKy, self.player.currentKx    # type: int, int
         self.directions = {'right':(0, 1), 'left':(0, -1), 'down':(1, 0), 'up':(-1, 0)}
-        self.pathFinder = None                                  # type: None or PathFinder
+        self.pathFinder = None                                  
 
         # Boolean-Switch, Counter-Variablen und solutionSize (Lösungspfadlänge) init
         self.isShowMenu, self.isRunning = True, True            # type: bool, bool
@@ -52,8 +55,8 @@ class MazeSpiel:
 
         # Menüvorbereitung, Überschreiben der entsprechenden Marker der jeweiligen Koordinaten-Instanzen
         self.menuText_ImageList = self.initMenu()
-        self.markStart_Ziel(self.player.currentKy, self.player.currentKx, STARTCOLER)
-        self.markStart_Ziel(self.player.zielKy, self.player.zielKx, ZIELCOLER)
+        self.markStart_Ziel(self.player.currentKy, self.player.currentKx, konstanten.STARTCOLER)
+        self.markStart_Ziel(self.player.zielKy, self.player.zielKx, konstanten.ZIELCOLER)
 
     @staticmethod
     def initMenu():                                                     # Menü-Init
@@ -67,7 +70,7 @@ class MazeSpiel:
         """
         font_24 = pygame.font.SysFont('consolas.ttf', 24)
         font_20 = pygame.font.SysFont('consolas.ttf', 20)
-        titleColor, textColor, infoColor = ROT, GRUENNEON, BLAUNEON
+        titleColor, textColor, infoColor = konstanten.ROT, konstanten.GRUENNEON, konstanten.BLAUNEON
         text_Images = [ font_24.render(6*" "+'M a z e G a m e  [ m ] E N Ü      ',
                                                                     True,titleColor),
             font_24.render('   Pfeiltasten Pfeiltasten: < ^  > v ',True, textColor),
@@ -124,7 +127,7 @@ class MazeSpiel:
         isSuccess, playerTimer = False, time.time()
         clock = pygame.time.Clock()                                 # FPS-Begrenzer
         while self.isRunning:
-            self.screen.fill(BGCOLOR)                    # reset screen auf BGCOLOR
+            self.screen.fill(konstanten.BGCOLOR)                    # reset screen auf BGCOLOR
 
             for ereignis in pygame.event.get():               # Benutzerinteraktion
                 self.do_pygameEvents(ereignis)
@@ -170,7 +173,7 @@ class MazeSpiel:
         if ereignis.type == QUIT:                       # Fenster "X" via Maus
             self.isRunning = False                   # oder Alt+F4 zum SpielBeenden
         elif ereignis.type == pygame.KEYDOWN:
-            # Alternatives vorzeitiges Beenden des Spiels Spielsteuerung
+            # Alternatives vorzeitiges Beenden des Spiels 
             if ereignis.key == pygame.K_q or ereignis.key == pygame.K_ESCAPE:  self.isRunning = False
 
             elif ereignis.key == pygame.K_RIGHT or ereignis.key == pygame.K_d: self.on_keyEvent('right')
@@ -192,7 +195,7 @@ class MazeSpiel:
 
             elif ereignis.key == pygame.K_RETURN:  # Animation Spannbaum Aktion
                 if    self.pathFinder:  self.pathFinder.resetMarker()
-                else: self.pathFinder = PathFinder(self.mazerator,self.player,False)
+                else: self.pathFinder = algo.PathFinder(self.mazerator,self.player,False)
 
                 self.sp3copy = copy.deepcopy(self.mazerator.spanning3)
                 self.sp3_ykey, self.sp3_xkey = self.spanning3_1stKey
@@ -239,7 +242,7 @@ class MazeSpiel:
         """
         x, y = 30, 40
         for textImage in self.menuText_ImageList:
-            pygame.draw.rect(self.screen,BGCOLOR,Rect(x,y,textImage.get_rect().w,textImage.get_rect().h))
+            pygame.draw.rect(self.screen,konstanten.BGCOLOR,Rect(x,y,textImage.get_rect().w,textImage.get_rect().h))
             self.screen.blit(textImage, (x, y))
             y += 16
 
@@ -258,9 +261,9 @@ class MazeSpiel:
             if not k.solutionMarker:
                 k.solutionMarker = k.rect        #self.pathFinder.calculateRect(k)
                 self.pathFinder.stack.push(k)
-                k.solutionMarkerColor = GENERATOR_COLOR
+                k.solutionMarkerColor = konstanten.GENERATOR_COLOR
             else:
-                k.solutionMarkerColor = BACKTRACKER_COLOR
+                k.solutionMarkerColor = konstanten.BACKTRACKER_COLOR
 
             self.sp3_ykey, self.sp3_xkey = self.sp3copy[self.sp3_ykey, self.sp3_xkey].pop()
 
@@ -289,12 +292,12 @@ class MazeSpiel:
         totalquote   = 0 if not isSuccess else self.solutionSize * 100 / self.totalMoves
 
         if isSuccess:
-            print(AUSWERTUNG_MSG.format('{:6.2f}'.format(playerTimer), "erfolgreich", self.gTasteCount))
+            print(konstanten.AUSWERTUNG_MSG.format('{:6.2f}'.format(playerTimer), "erfolgreich", self.gTasteCount))
         else:
             playerTimer = time.time() - playerTimer
-            print(AUSWERTUNG_MSG.format('{:6.2f}'.format(playerTimer),"vorzeitig", self.gTasteCount))
+            print(konstanten.AUSWERTUNG_MSG.format('{:6.2f}'.format(playerTimer),"vorzeitig", self.gTasteCount))
 
-        print(SOLUTION_MSG.format(self.totalMoves, validMove,'{:5.2f}'.format(validquote),
+        print(konstanten.SOLUTION_MSG.format(self.totalMoves, validMove,'{:5.2f}'.format(validquote),
                                            self.invalidMoves,'{:5.2f}'.format(invalidquote),
                                            self.solutionSize,'{:5.2f}'.format(totalquote)))
 
@@ -317,12 +320,12 @@ class MazeSpiel:
         xnach = xvon + modx
 
         if self.player.isDirectionValid(yvon, xvon, ynach, xnach):
-            self.labyrinth[yvon][xvon].markerColor = PLAYERPATHCOLOR
+            self.labyrinth[yvon][xvon].markerColor = konstanten.PLAYERPATHCOLOR
             self.labyrinth[ynach][xnach].marker = self.labyrinth[ynach][xnach].rect
-            self.labyrinth[ynach][xnach].markerColor = VALIDMOVECOLOR
+            self.labyrinth[ynach][xnach].markerColor = konstanten.VALIDMOVECOLOR
             self.player.setPos(ynach, xnach)
         else:
-            self.labyrinth[yvon][xvon].markerColor = INVALIDMOVECOLOR
+            self.labyrinth[yvon][xvon].markerColor = konstanten.INVALIDMOVECOLOR
             self.invalidMoves += 1
 
     def on_keyEvent_F1(self):                              # Berechne Lösungspfad
@@ -334,7 +337,7 @@ class MazeSpiel:
         if self.isShowSolutionPath:
             if self.pathFinder:                  # reset alten Lösungspfad
                 self.pathFinder.resetMarker()    # oder spanning3 in solutionMarker
-            self.pathFinder = PathFinder(self.mazerator, self.player)
+            self.pathFinder = algo.PathFinder(self.mazerator, self.player)
             self.solutionSize = self.pathFinder.stack.size - 1
 
     def on_keyEvent_g(self):                              # Neuvergabe Start / Ziel
@@ -358,10 +361,10 @@ class MazeSpiel:
                 self.mazerator.labyrinth[zeile][spalte].marker = None
                 self.mazerator.labyrinth[zeile][spalte].solutionMarker = None
 
-        self.player = Player(self.yAchse, self.xAchse, self.mazerator.spanning3)
+        self.player = model.Player(self.yAchse, self.xAchse, self.mazerator.spanning3)
         self.startKy, self.startKx = self.player.currentKy, self.player.currentKx
-        self.markStart_Ziel(self.player.currentKy, self.player.currentKx,STARTCOLER)
-        self.markStart_Ziel(self.player.zielKy, self.player.zielKx, ZIELCOLER)
+        self.markStart_Ziel(self.player.currentKy, self.player.currentKx,konstanten.STARTCOLER)
+        self.markStart_Ziel(self.player.zielKy, self.player.zielKx, konstanten.ZIELCOLER)
         self.on_keyEvent_F1()
 
     def on_keyEvent_k(self):
@@ -370,8 +373,8 @@ class MazeSpiel:
         Die Funktion wird erst aufgerufen, wenn der Spieler die Taste "k" drückt.
         """
         self.is2farbig = not self.is2farbig
-        if self.is2farbig: self.kantenfarbe = (WALLCOLOR_1, WALLCOLOR_2)
-        else:              self.kantenfarbe = (WALLCOLOR_1, WALLCOLOR_1)
+        if self.is2farbig: self.kantenfarbe = (konstanten.WALLCOLOR_1, konstanten.WALLCOLOR_2)
+        else:              self.kantenfarbe = (konstanten.WALLCOLOR_1, konstanten.WALLCOLOR_1)
 
 
 class Konsole(object):
@@ -388,8 +391,8 @@ class Konsole(object):
     def __init__(self, yAchse: int = 10, xAchse: int = 10):
         self.yAchse: int = yAchse
         self.xAchse: int = xAchse
-        self.kantenlaenge: int = LAENGE
-        self.screentype: int = SCREENTYPE
+        self.kantenlaenge: int = konstanten.LAENGE
+        self.screentype: int = konstanten.SCREENTYPE
         self.mazerator = None  # type: None or  MazeGenerator
         self.running, self.debug = True, False  # type: bool, bool
 
@@ -425,7 +428,7 @@ class Konsole(object):
 
             # L A B Y R I N T H   E R S T E L L U N G
             startTimeToCreate = time.time()
-            self.mazerator = MazeGenerator(self.yAchse, self.xAchse, self.kantenlaenge)
+            self.mazerator = algo.MazeGenerator(self.yAchse, self.xAchse, self.kantenlaenge)
 
             # Zeitdauer zum Generieren und Auswahl der Zeiteinheit
             timeToCreateMaze: float = time.time() - startTimeToCreate
@@ -435,7 +438,7 @@ class Konsole(object):
                                    else "Sekunden"
 
             # P L A Y E R  I N S T A N Z I I E R U N G + Start/Ziel Markierung
-            player = Player(self.yAchse, self.xAchse, self.mazerator.spanning3)
+            player = model.Player(self.yAchse, self.xAchse, self.mazerator.spanning3)
             labyrinth = self.mazerator.labyrinth
             labyrinth[player.currentKy][player.currentKx].marker = "PLAY"
             labyrinth[player.zielKy][player.zielKx].marker = "END "
@@ -500,7 +503,7 @@ class Konsole(object):
         """
         while True:
             try:
-                userinput = input(MENU).lower().strip()
+                userinput = input(konstanten.MENU).lower().strip()
                 ystring, xstring = "",""
                 if "q" in userinput:
                     self.running = False
@@ -526,11 +529,11 @@ class Konsole(object):
                         break
                 except ValueError:
                     if "d" not in userinput:
-                        print(WRONG_VALUE_ERRMSG)
+                        print(konstanten.WRONG_VALUE_ERRMSG)
                 except TypeError:
                     pass
             except ValueError:
-                print(TOO_MANY_VALUE_ERRMSG)
+                print(konstanten.TOO_MANY_VALUE_ERRMSG)
 
 
 def getValidation_and_config(yAchse: object, xAchse: object) -> object:  # Achsenwert Validierung
@@ -543,11 +546,11 @@ def getValidation_and_config(yAchse: object, xAchse: object) -> object:  # Achse
     :param xAchse:  x-Achsenwert
     :type xAchse: int
     """
-    kantenlaenge, minKantenLaenge = LAENGE, KANTENLAENGE_MINIMUM  # type: int, int
-    x_screenTotal, y_screenTotal = SCREENSIZE  # type: int
-    screentype = RESIZABLE  # type: int or None
-    usableScreen_y = y_screenTotal - 2 * FENSTER_RAND_ABSTAND  # type: int
-    usableScreen_x = x_screenTotal - 2 * FENSTER_RAND_ABSTAND  # type: int
+    kantenlaenge, minKantenLaenge = konstanten.LAENGE, konstanten.KANTENLAENGE_MINIMUM  # type: int, int
+    x_screenTotal, y_screenTotal = konstanten.SCREENSIZE  # type: int
+    screentype = RESIZABLE  # type: int 
+    usableScreen_y = y_screenTotal - 2 * konstanten.FENSTER_RAND_ABSTAND  # type: int
+    usableScreen_x = x_screenTotal - 2 * konstanten.FENSTER_RAND_ABSTAND  # type: int
     max_y_Achse = int(usableScreen_y / minKantenLaenge)  # type: int
     max_x_Achse = int(usableScreen_x / minKantenLaenge)  # type: int
 
@@ -618,29 +621,19 @@ def main():
             MazeSpiel(yAchse,xAchse,mazerator,Player(yAchse,xAchse,mazerator.spanning3),screentype).run()
     else:
         if args.xaxis and args.yaxis:            # Param.übg. via: -x 10 -y 11 oder --xaxis 10 --yaxis 11
-            print(PARAM_MSG.format( args.xaxis[0], args.yaxis[0] ))
+            print(konstanten.PARAM_MSG.format( args.xaxis[0], args.yaxis[0] ))
             Konsole(args.yaxis[0], args.xaxis[0]).run()
         elif (args.xaxis and not args.yaxis) or (not args.xaxis and args.yaxis):
-            print( ONLY_1_PARAM_ERRMSG )
+            print( konstanten.ONLY_1_PARAM_ERRMSG )
         elif len(args.axisValues) == 2:                                           # Param.übg. via: 10 11
-            print(PARAM_MSG.format( args.axisValues[0], args.axisValues[1] ))
+            print(konstanten.PARAM_MSG.format( args.axisValues[0], args.axisValues[1] ))
             Konsole(args.axisValues[1], args.axisValues[0]).run()
-        elif len(args.axisValues)  > 2:  print(OVER_2_PARAM_ERRMSG)                   # Zuviele Parameter
-        elif len(args.axisValues) == 1:  print(ONLY_1_PARAM_ERRMSG)    # Unvollständige Parameterübergabe
+        elif len(args.axisValues)  > 2:  print(konstanten.OVER_2_PARAM_ERRMSG)                   # Zuviele Parameter
+        elif len(args.axisValues) == 1:  print(konstanten.ONLY_1_PARAM_ERRMSG)    # Unvollständige Parameterübergabe
         else:
-            print(NO_PARAM_MSG)                                                 # Keine ParameterÜbergabe
+            print(konstanten.NO_PARAM_MSG)                                                 # Keine ParameterÜbergabe
             Konsole().run()
 
 if __name__ == '__main__':
     main()
     sys.exit()
-
-""" Gibt das Menü aus und nimmt die Benutzereingabe entgegen, lässt die Achsenwerte validieren.
-
-       Validierer: Aufruf der Modul-Funktion getValidation_and_config
-       bevor
-
-
-       Quellenangabe zu dem regex, welches den userinput entweder nach "x", " " oder "*" zerteilt.
-       https://stackoverflow.com/questions/4998629/split-string-with-multiple-delimiters-in-python
-       """
