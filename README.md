@@ -5,12 +5,12 @@ Is a minimalistic Maze-Game with random starting and end point.  It will work on
 but works also in OSX or linux, if you manually type your local screen resolution in the module 
 konstanten.py at line 7:    
 SCREENSIZE = (1920,1080) #    
-and put a comment [#] at very start of line 3 and 5   
+and put a comment [#] at the start of line 3 and 5   
 
 Dependency:  
-Install the pygame-Modul 2.0.1 or newer 
+Install python 3.8 or highter and the pygame-Modul 2.0.1 or newer 
 
-The Game can be started by navigating to the games directory and by typing following commands: 
+The Game can be started by navigating to the games directory and by typing following commands in the pycharm terminal: 
 
 1) python mazespiel.py   
 2) python mazespiel.py 10 20   
