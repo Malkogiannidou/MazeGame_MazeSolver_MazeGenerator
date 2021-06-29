@@ -1,10 +1,10 @@
 # coding=utf-8
-import ctypes
+import ctypes      # Comment this line like this comment for use under Linux or OSX
 from pygame.locals import *
 # S I Z E S
-_user32 = ctypes.windll.user32
+_user32 = ctypes.windll.user32  # Comment this line like this comment for use under Linux or OSX
 # (x,y-Auflösung =     ┏━━━━━━━→ x-Achse           ┏━━━━━━━→  y-Achse
-SCREENSIZE = _user32.GetSystemMetrics(0), _user32.GetSystemMetrics(1)
+SCREENSIZE = _user32.GetSystemMetrics(0), _user32.GetSystemMetrics(1)   # under Linux or OSX, if FULLHD type: SCREENSIZE = (1920,1080)
 SCREENTYPE = RESIZABLE
 LAENGE = 30
 KANTENLAENGE_MINIMUM = 4
@@ -115,21 +115,3 @@ SOLUTION_MSG = " Spieler Gesamtschrittanzahl: {}\n " \
                "\t- invalide Schrittanzahl: {} ({} %)\n"\
                " Lösungspfadlänge: {}\n" \
                " Spieler-Effizienz: {} %\n\n"
-
-
-
-"""
-x, s, _, e, = '█', '░', 'E', ' '
-labyrinth = [# 0  1  2  3  4  5  6  7  8  9
-              [x, s, x, x, x, x, x, x, x, x],  # 0
-              [x, _, _, _, _, _, _, _, _, x],  # 1
-              [x, _, x, _, x, _, x, x, _, x],  # 2
-              [x, _, x, x, x, _, x, x, _, x],  # 3
-              [x, _, _, _, _, x, x, x, _, x],  # 4
-              [x, x, x, x, _, _, x, x, _, x],  # 5
-              [e, _, _, x, _, x, _, _, _, x],  # 6
-              [x, x, _, x, _, x, x, _, x, x],  # 7
-              [x, x, _, _, _, _, _, _, _, x],  # 8
-              [x, x, x, x, x, x, x, x, x, x]]  # 9
-startZeichen, endZeichen, wandZeichen, = s, e, x
-"""
