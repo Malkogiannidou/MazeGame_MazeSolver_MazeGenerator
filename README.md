@@ -42,14 +42,15 @@ resolution devided by 4 pixel.
 
 As an example the xaxis can go up to 479 fields and the yaxis up to 269 at FullHD (1920*1080) resolution.     
 
-After choosing the menu option the maze will be printed out in the console. If not chosen to high like 30x30
-then you can compare the output also with the graphical output and you won't see much differene apart from 
+After choosing the menu option the maze will be printed out in the console. If the maze size ist beween
+10x10 to 30x30 (dependent on your local screen resolution) then you can compare the output also with the 
+graphical output and you won't see much differene apart from 
 the color and field like the starting and ending point.    
 
 A new window will appear eighter in window mode or full-screen mode depending on how high your fields are. 
 If in full-screen mode, you have to click with the mouse anywhere in the screen.   
 
-On the upper left corner (depending on the axis-value) the menu is shown, which disappears if typed any key. 
+On the upper left corner (depending on the maze-size) the menu is shown, which disappears if typed any key. 
 To play the game use the arrow keys or [w, a, s, d]. Your goal is to get to the pinkish end point ;-). 
 Obviously you can't cross any walls or fallout of the maze.   
 
