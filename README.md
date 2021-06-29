@@ -3,7 +3,7 @@ MazeGame, Maze-Generator, Maze-Solver
 
 Is a minimalistic Maze-Game with random starting and end point.  It will work only on windows, 
 but works also in OSX or linux, if you manually type your local screen resolution in the module 
-Konstanten.py at line 7:    
+konstanten.py at line 7:    
 SCREENSIZE = (1920,1080) #    
 and put a comment [#] at very start of line 3 and 5   
 
